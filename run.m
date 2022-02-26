@@ -33,7 +33,7 @@ else
     past_data_considered = NaN;
 end
 
-rounds = 500; % Number of rounds per simulation
+rounds = 120; % Number of rounds per simulation
 k = 80000; % Bits transmitted per packet
 
 % Clustering Paramters
