@@ -20,7 +20,7 @@ ener_agg = 100e-12; % Aggregation Energy
 n = 100; % Number of nodes
 
 sn = 4; % Number of mobile sink
-sn_positioning = ["random", "even_nonconfined", "even_confined"]; % Mobile Sink Positioning Method to be compared
+sn_positioning = ["random", "even_nonconfined"]; % Mobile Sink Positioning Method to be compared
 % Possible values: random, even_nonconfined, even_confined
 pn_select_method = ["cluster_head", "no_of_visit", "prediction"]; % cluster_head only applies to random.
 % Possible values: cluster_head, no_of_visit, prediction
@@ -79,7 +79,7 @@ for sn_method = sn_positioning
         
         % Smiluation of the WSN
         [SN, round_params, sim_params] = simulation_rounds(rounds, initial_SN, dims, ener, k, ms_ids, n_clusters, mob_params, sn_model, past_data_considered, sn_method, pn_method);
-        name = sn_method + " " + pn_method;
+        name = char(sn_method + ' ' + pn_method);
         SN_compare(name) = SN;
         sim_params_compare(name) = sim_params;
 
@@ -91,14 +91,19 @@ for sn_method = sn_positioning
         fprintf('Lifetime: %d secs\n', round(round_params('lifetime'), 2))
         fprintf('Lifetime Round: %d\n', round_params('lifetime round'))
         
+        pause(2.5)
+        
     end
 end
 
-%% Data Visualisation - Individuals
-plot_data(rounds, sim_params)
+%% Data Visualisations
+figure_num = 0;
 
-%% Data Visualisation - Comparisons
-plot_data(rounds, sim_params)
+%% Individual Plots
+figure_num = plot_data_individuals(figure_num, rounds, sim_params_compare, sn_positioning, pn_select_method);
 
-%% Mobility Visualization
-plot_simulation(SN, rounds, dims)
+%% Comparison Plots
+figure_num = plot_data_compare(figure_num, rounds, sim_params_compare, sn_positioning, pn_select_method);
+
+%% Mobility Visualization Plot
+figure_num = plot_simulation(figure_num, SN_compare, rounds, dims, sn_positioning, pn_select_method);

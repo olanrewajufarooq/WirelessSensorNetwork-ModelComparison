@@ -1,33 +1,68 @@
-function plot_simulation(SN, rounds, dims)
+function figure_num = plot_simulation(figure_num, SN_compare, rounds, dims, sn_positioning, pn_select_method);
 %PLOT_SIMULATION Summary of this function goes here
 %   Detailed explanation goes here
 
-figure(2);
+figure_num = figure_num + 1;
+figure(figure_num);
 hold on;
 
-xlabel('X (meters)');
-ylabel('Y (meters)');
-title('Radom Waypoint mobility');
+plot_i = 0;
+for sn_method = sn_positioning
+    for pn_method = pn_select_method
 
-plot( dims('x_min'),dims('y_min'),dims('x_max'),dims('y_max') );
+        if strcmp(pn_method, "cluster_head") && ~strcmp(sn_method, "random")
+            continue
+        end
+        
+        name = char(sn_method + ' ' + pn_method);
+        SN = SN_compare(char(name));
+        
+        plot_i = plot_i + 1;
+        subplot(2, 3, plot_i)
+        
+        xlabel('X (meters)');
+        ylabel('Y (meters)');
+        title('Radom Waypoint mobility');
 
-for i = 1:length(SN.n)
-    node_plot(i) = scatter(SN.n(i).Xs(1), SN.n(i).Ys(1), SN.n(i).size );
-    node_plot(i).MarkerFaceColor = SN.n(i).COLs(1);
-    node_plot(i).MarkerFaceAlpha = SN.n(i).ALPHAs(1);
-    node_plot(i).MarkerEdgeAlpha = 0;
+        plot( dims('x_min'),dims('y_min'),dims('x_max'),dims('y_max') );
+
+        for i = 1:length(SN.n)
+            node_plot(i) = scatter(SN.n(i).Xs(1), SN.n(i).Ys(1), SN.n(i).size );
+            node_plot(i).MarkerFaceColor = SN.n(i).COLs(1);
+            node_plot(i).MarkerFaceAlpha = SN.n(i).ALPHAs(1);
+            node_plot(i).MarkerEdgeAlpha = 0;
+        end
+
+        round_val_text = text(dims('x_min'), dims('y_max'), cat(2,'Round = 0'));
+        
+    end
 end
-
-round_val_text = text(dims('x_min'), dims('y_max'), cat(2,'Round = 0'));
 
 hold off
 
 for round = 1:rounds
-    set(round_val_text, 'String', cat(2,'Round = ', num2str(round)));
-    for i = 1:length(SN.n)
-        set(node_plot(i), {'XData', 'YData', 'MarkerFaceColor', 'MarkerFaceAlpha' }, {SN.n(i).Xs(round), SN.n(i).Ys(round), SN.n(i).COLs(round), SN.n(i).ALPHAs(round)});
+    
+    plot_i = 0;
+    for sn_method = sn_positioning
+        for pn_method = pn_select_method
+
+            if strcmp(pn_method, "cluster_head") && ~strcmp(sn_method, "random")
+                continue
+            end
+            
+            name = char(sn_method + ' ' + pn_method);
+            SN = SN_compare(char(name));
+            
+            plot_i = plot_i + 1;
+            subplot(2, 3, plot_i)
+    
+            set(round_val_text, 'String', cat(2,'Round = ', num2str(round)));
+            for i = 1:length(SN.n)
+                set(node_plot(i), {'XData', 'YData', 'MarkerFaceColor', 'MarkerFaceAlpha' }, {SN.n(i).Xs(round), SN.n(i).Ys(round), SN.n(i).COLs(round), SN.n(i).ALPHAs(round)});
+            end
+            drawnow;
+        end
     end
-    drawnow;
 end
 
 end

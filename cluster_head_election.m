@@ -66,7 +66,8 @@ for i=1:length(SN.n)
             if generate < t
                 SN.n(i).role = 'C';	% assigns the node role of a cluster head
                 SN.n(i).rnd_chelect = round;	% Assigns the round that the cluster head was elected to the data table
-                SN.n(i).chelect = SN.n(i).chelect + 1;   
+                SN.n(i).chelect = SN.n(i).chelect + 1;
+                SN.n(i).col = "g"; % node color when plotting
                 SN.n(i).rleft = 1/p - tleft;    % rounds for which the node will be unable to become a CH
                 CLheads = CLheads + 1;
                 SN.n(i).cluster = CLheads; % cluster of which the node got elected to be cluster head

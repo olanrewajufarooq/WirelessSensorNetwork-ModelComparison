@@ -29,6 +29,7 @@ for i=1:n_routing_nodes
     [~, route_id] = min( dsr(:) );
 
     SN.n(route_id).role = 'R';
+    SN.n(route_id).col = "b"; % node color when plotting
     rn_ids(i) = route_id;
     
 end

@@ -91,6 +91,7 @@ for i = 1:length(SN.n)
             % Energy Dissipation in Mobile Sink
             ERx=(energy('rec') + energy('agg'))*k;
             round_params('total energy') = round_params('total energy') + ERx;
+            round_params('packets') = round_params('packets') + 1;
 
         end
 
@@ -127,7 +128,6 @@ for pn_id = pn_ids
                 SN.n(pn_id).E = SN.n(pn_id).E - ETx;
                 SN.n(pn_id).alpha = (4/25)*(2.5^4).^(SN.n(pn_id).E);
                 round_params('total energy') = round_params('total energy') + ETx;
-                round_params('packets') = round_params('packets') + 1;
 
                 % Check for priority node depletion
                 if SN.n(pn_id).E<=0 % if nodes energy depletes with transmission
@@ -143,6 +143,7 @@ for pn_id = pn_ids
                 % Energy Dissipation in Mobile Sink
                 ERx=(energy('rec') + energy('agg'))*k;
                 round_params('total energy') = round_params('total energy') + ERx;
+                round_params('packets') = round_params('packets') + 1;
 
             end
         end

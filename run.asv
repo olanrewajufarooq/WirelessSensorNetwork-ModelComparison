@@ -20,7 +20,7 @@ ener_agg = 100e-12; % Aggregation Energy
 n = 100; % Number of nodes
 
 sn = 4; % Number of mobile sink
-sn_positioning = ["random", "even_nonconfined", "even_confined"]; % Mobile Sink Prediction to be compared
+sn_positioning = ["random", "even_nonconfined"]; % Mobile Sink Positioning Method to be compared
 % Possible values: random, even_nonconfined, even_confined
 pn_select_method = ["cluster_head", "no_of_visit", "prediction"]; % cluster_head only applies to random.
 % Possible values: cluster_head, no_of_visit, prediction
@@ -91,11 +91,16 @@ for sn_method = sn_positioning
         fprintf('Lifetime: %d secs\n', round(round_params('lifetime'), 2))
         fprintf('Lifetime Round: %d\n', round_params('lifetime round'))
         
+        pause(2.5)
+        
     end
 end
 
-%% Data Visualisation
-plot_data(rounds, sim_params)
+%% Data Visualisations - Individuals
+plot_data_individuals(rounds, sim_params, sn_positioning, pn_select_method)
+
+%% Data Visualisation - Comparisons
+plot_data_compare(rounds, sim_params, sn_positioning, pn_select_method)
 
 %% Mobility Visualization
-plot_simulation(SN, rounds, dims)
+plot_simulation(SN, rounds, dims, sn_positioning, pn_select_method)

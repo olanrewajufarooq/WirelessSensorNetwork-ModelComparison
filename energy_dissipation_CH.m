@@ -48,69 +48,6 @@ CL_heads = length(unique([SN.n.chid]));
 
 start_time = toc;
 
-for i = 1:length(SN.n)
-
-    % Packet Transfer for Nodes in Given Cluster
-    if strcmp(SN.n(i).role, 'N') && strcmp(SN.n(i).cond,'A')
-
-        if SN.n(i).E > 0 && SN.n(i).chid ~= 0 % Verification that node is alive and it has a priority node
-            
-            ETx = energy('tran')*k + energy('amp') * k * SN.n(i).dnc^2;
-            SN.n(i).E = SN.n(i).E - ETx;
-            SN.n(i).alpha = (4/25)*(2.5^4).^(SN.n(i).E);
-            round_params('total energy') = round_params('total energy') + ETx;
-
-            % Dissipation for channel head during reception
-            if SN.n(SN.n(i).chid).E > 0 && strcmp(SN.n(SN.n(i).chid).cond, 'A') && strcmp(SN.n(SN.n(i).chid).role, 'C')
-                ERx = (energy('rec') + energy('agg'))*k;
-                round_params('total energy') = round_params('total energy') + ERx;
-                SN.n(SN.n(i).chid).E = SN.n(SN.n(i).chid).E - ERx;
-                SN.n(SN.n(i).chid).alpha = (4/25)*(2.5^4).^(SN.n(SN.n(i).chid).E);
-
-                if SN.n(SN.n(i).chid).E<=0  % if priority node energy depletes with reception
-                    SN.n(SN.n(i).chid).cond = 'D';
-                    SN.n(SN.n(i).chid).rop=round;
-                    SN.n(SN.n(i).chid).E=0;
-                    SN.n(SN.n(i).chid).alpha = 0;
-                    round_params('dead nodes') = round_params('dead nodes') + 1;
-                    round_params('operating nodes') = round_params('operating nodes') - 1;
-                end
-            end
-            
-        elseif SN.n(i).E > 0 && SN.n(i).chid == 0 % Verification that node is alive but it has no priority node
-            
-            distances = zeros(1, length(ms_ids));
-            for j = 1:length(ms_ids)
-                distances(j) = sqrt( (SN.n(ms_ids(j)).x - SN.n(i).x)^2 + (SN.n(ms_ids(j)).y - SN.n(i).y)^2 );
-            end
-            
-            dns = min(distances(:)); % Distance to closest mobile sink
-            
-            ETx = energy('tran')*k + energy('amp') * k * dns^2;
-            SN.n(i).E = SN.n(i).E - ETx;
-            SN.n(i).alpha = (4/25)*(2.5^4).^(SN.n(i).E);
-            round_params('total energy') = round_params('total energy') + ETx;
-            
-            % Energy Dissipation in Mobile Sink
-            ERx=(energy('rec') + energy('agg'))*k;
-            round_params('total energy') = round_params('total energy') + ERx;
-
-        end
-
-        % Check for node depletion
-        if SN.n(i).E<=0 % if nodes energy depletes with transmission
-            round_params('dead nodes') = round_params('dead nodes') + 1;
-            round_params('operating nodes') = round_params('operating nodes') - 1;
-            SN.n(i).cond = 'D';
-            SN.n(i).pn_id=0;
-            SN.n(i).rop=round;
-            SN.n(i).E=0;
-            SN.n(i).alpha=0;
-        end
-
-    end
-end
-
 % Transmission from sensor node through shortest route
 for i=1:length(SN.n)
     if (strcmp(SN.n(i).cond,'A') && strcmp(SN.n(i).role, 'N') && (CL_heads > 0) )
@@ -195,6 +132,7 @@ for i=1:length(SN.n)
                 % Energy Dissipation in Mobile Sink
                 ERx=(energy('rec') + energy('agg'))*k;
                 round_params('total energy') = round_params('total energy') + ERx;
+                round_params('packets') = round_params('packets') + ERx;
 
 
             % Transmission via routing
@@ -295,6 +233,7 @@ for ch_id = ch_ids
                     % Energy Dissipation in Mobile Sink
                     ERx=(energy('rec') + energy('agg'))*k;
                     round_params('total energy') = round_params('total energy') + ERx;
+                    round_params('packets') = round_params('packets') + 1;
 
                 % Transmission via routing
                 else           
@@ -329,11 +268,11 @@ for ch_id = ch_ids
                         SN.n(SN.n(ch_id).route_id).E = SN.n(SN.n(ch_id).route_id).E - ETx;
                         SN.n(SN.n(ch_id).route_id).alpha = (4/25)*(2.5^4).^(SN.n(SN.n(ch_id).route_id).E);
                         round_params('total energy') = round_params('total energy') + ETx;
-                        round_params('packets') = round_params('packets') + 1;
 
                         % Energy Dissipation in Mobile Sink
                         ERx = (energy('rec') + energy('agg')) * k;
                         round_params('total energy') = round_params('total energy') + ERx;
+                        round_params('packets') = round_params('packets') + 1;
                     end
 
                     if SN.n(SN.n(ch_id).route_id).E <= 0  % if routing node energy depletes with transmission
