@@ -19,8 +19,8 @@ ener_agg = 100e-12; % Aggregation Energy
 % Simulation Parameters
 n = 100; % Number of nodes
 
-sn = 4; % Number of mobile sink
-sn_positioning = ["random", "even_nonconfined"]; % Mobile Sink Positioning Method to be compared
+sn = 3; % Number of mobile sink
+sn_positioning = ["random", "even_nonconfined", "even_confined"]; % Mobile Sink Positioning Method to be compared
 % Possible values: random, even_nonconfined, even_confined
 pn_select_method = ["cluster_head", "no_of_visit", "prediction"]; % cluster_head only applies to random.
 % Possible values: cluster_head, no_of_visit, prediction
@@ -29,13 +29,15 @@ if ismember("prediction", pn_select_method)
     generate_new_model = false; % boolean to decide the generation of new predictive model for the mobile sinks
     train_data = 1; % Number of training rounds where data is to be gathered
     past_data_considered = 10; % Number of past data ussed in prediction
+else
+    past_data_considered = NaN;
 end
 
-rounds = 200; % Number of rounds per simulation
-k = 8000; % Bits transmitted per packet
+rounds = 120; % Number of rounds per simulation
+k = 80000; % Bits transmitted per packet
 
 % Clustering Paramters
-n_clusters = 5;
+n_clusters = 7;
 
 % Mobility Parameters
 min_dist = 0; % Minimum mobility for sensor nodes (in m)
@@ -60,9 +62,12 @@ if ismember("prediction", pn_select_method)
     else
         sn_model = load_previous_model();
     end
+else
+    sn_model = NaN;
 end
 
 %% Initialization of the WSN
+[initial_SN_LEACH, ms_ids_LEACH] = createWSN(n, 1, sn_positioning, dims, ener('init'), rounds);
 [initial_SN, ms_ids] = createWSN(n, sn, sn_positioning, dims, ener('init'), rounds);
 
 %% Comparison Model
@@ -85,7 +90,7 @@ for sn_method = sn_positioning
 
         % Lifetime and Stability Periods.
 
-        fprintf('\n\nSimulation Summary\n\n')
+        fprintf('\nSimulation Summary\n')
         fprintf('Stability Period: %d secs\n', round(round_params('stability period'), 2))
         fprintf('Stability Period Round: %d\n', round_params('stability period round'))
         fprintf('Lifetime: %d secs\n', round(round_params('lifetime'), 2))

@@ -67,6 +67,7 @@ else
 end
 
 %% Initialization of the WSN
+[initial_SN_LEACH, ms_ids_LEACH] = createWSN(n, 1, sn_positioning, dims, ener('init'), rounds);
 [initial_SN, ms_ids] = createWSN(n, sn, sn_positioning, dims, ener('init'), rounds);
 
 %% Comparison Model
@@ -77,12 +78,16 @@ sim_params_compare = containers.Map();
 for sn_method = sn_positioning
     for pn_method = pn_select_method
         
+        % Smiluation of the WSN
         if strcmp(pn_method, "cluster_head") && ~strcmp(sn_method, "random")
             continue
+        elseif strcmp(pn_method, "cluster_head") && strcmp(sn_method, "random")
+            [SN, round_params, sim_params] = simulation_rounds(rounds, initial_SN_LEACH, dims, ener, k, ms_ids_LEACH, n_clusters, mob_params, sn_model, past_data_considered, sn_method, pn_method);
+        else
+            [SN, round_params, sim_params] = simulation_rounds(rounds, initial_SN, dims, ener, k, ms_ids, n_clusters, mob_params, sn_model, past_data_considered, sn_method, pn_method);
         end
         
-        % Smiluation of the WSN
-        [SN, round_params, sim_params] = simulation_rounds(rounds, initial_SN, dims, ener, k, ms_ids, n_clusters, mob_params, sn_model, past_data_considered, sn_method, pn_method);
+        
         name = char(sn_method + ' ' + pn_method);
         SN_compare(name) = SN;
         sim_params_compare(name) = sim_params;
