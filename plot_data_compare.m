@@ -2,6 +2,18 @@ function figure_num = plot_data_compare(figure_num, rounds, sim_params_compare, 
 %PLOT_DATA_COMPARE Summary of this function goes here
 %   Detailed explanation goes here
 
+% Sub Plot Defining
+if length(sim_params_compare) <= 4
+    sp_row = 2;
+    sp_col = 2;
+elseif length(sim_params_compare) <= 6
+    sp_row = 2;
+    sp_col = 3;
+elseif
+    sp_row = ceil(length(sim_params_compare)/3);
+    sp_col = 3;
+end
+
 figure_num = figure_num + 1;
 figure(figure_num)
 
@@ -15,7 +27,7 @@ for sn_method = sn_positioning
             continue
         elseif strcmp(pn_method, "cluster_head") && strcmp(sn_method, "random")
             k = k + 1;
-            legend_names(k) = {'LEACH Algorithm: Static Mobile Sinks'};
+            legend_names(k) = {'LEACH Algorithm: Single Static Sinks'};
         else
             k = k + 1;
             legend_names(k) = { capitalize(strjoin(split(sn_method, '_'))) + ': ' + capitalize(strjoin(split(pn_method, '_'))) };
@@ -30,7 +42,7 @@ i = 0;
 colors = containers.Map( {1, 2, 3, 4, 5, 6, 7}, {'-r', '-g', '-b', '-k', '-m', '-y', '-c'} );
 for param = ["dead nodes", "operating nodes", "total energy", "packets", "contact time", "interconnect time"]
     i = i + 1;
-    subplot(2, 3, i)
+    subplot(sp_row, sp_col, i)
     
     color_num = 0;
     for sn_method = sn_positioning

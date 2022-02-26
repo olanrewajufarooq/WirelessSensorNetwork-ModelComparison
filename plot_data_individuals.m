@@ -2,6 +2,17 @@ function figure_num = plot_data_individuals(figure_num, rounds, sim_params_compa
 %PLOT_DATA_INDIVIDUALS Summary of this function goes here
 %   Detailed explanation goes here
 
+% Sub Plot Defining
+if length(sim_params_compare) <= 4
+    sp_row = 2;
+    sp_col = 2;
+elseif length(sim_params_compare) <= 6
+    sp_row = 2;
+    sp_col = 3;
+elseif
+    sp_row = ceil(length(sim_params_compare)/3);
+    sp_col = 3;
+end
 
 for sn_method = sn_positioning
     
@@ -16,7 +27,7 @@ for sn_method = sn_positioning
         sim_params = sim_params_compare(char(name));
         
         if strcmp(pn_method, "cluster_head") && strcmp(sn_method, "random")
-            legend_name = {'LEACH Algorithm: Static Mobile Sinks'};
+            legend_name = {'LEACH Algorithm: Single Static Sinks'};
         end
         
         figure_num = figure_num + 1;
@@ -25,7 +36,7 @@ for sn_method = sn_positioning
         i = 0;
         for param = ["dead nodes", "operating nodes", "total energy", "packets", "contact time", "interconnect time"]
             i = i + 1;
-            subplot(2, 3, i)
+            subplot(sp_row, sp_col, i)
 
             plot(1:rounds,sim_params(param),'-r','Linewidth',2);
             hold on
