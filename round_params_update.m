@@ -111,6 +111,10 @@ for i = 1:length(SN.n)
     SN.n(i).ALPHAs(round) = SN.n(i).alpha;
     SN.n(i).COLs(round) = SN.n(i).col;
     
+    if strcmp(sn_select_method, "random") && strcmp(pn_select_method, "cluster_head")
+        continue
+    end
+    
     % Update new node positions
     if (strcmp(SN.n(i).role, 'N') || strcmp(SN.n(i).role, 'P')) && strcmp(SN.n(i).cond, 'A')
         dist_moved = mob_params('min_dist') + rand * (mob_params('max_dist') - mob_params('min_dist'));

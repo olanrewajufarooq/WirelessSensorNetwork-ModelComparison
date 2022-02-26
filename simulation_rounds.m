@@ -89,7 +89,7 @@ for round=1:rounds
     if strcmp(pn_select_method, "cluster_head")
         [SN, round_params, int_conn_start, int_conn_start_check] = energy_dissipation_CH(SN, round, rn_ids, ms_ids, dims, ener, k, round_params, int_conn_start, int_conn_start_check);
     else
-        [SN, round_params, int_conn_start, int_conn_start_check] = energy_dissipation_others(SN, round, ms_ids, pn_ids, ener, k, round_params, int_conn_start, int_conn_start_check);
+        [SN, round_params, int_conn_start, int_conn_start_check] = energy_dissipation_others(SN, round, ms_ids, pn_ids, dims, ener, k, round_params, int_conn_start, int_conn_start_check);
     end
     
     % Update the simulation parameters

@@ -7,6 +7,9 @@ figure(figure_num);
 hold on;
 
 plot_i = 0;
+node_plots = {};
+clear round_val_texts;
+
 for sn_method = sn_positioning
     for pn_method = pn_select_method
 
@@ -65,8 +68,11 @@ for round = 1:rounds
             round_val_text = round_val_texts(plot_i);
     
             set(round_val_text, 'String', cat(2,'Round = ', num2str(round)));
+            hold on;
+            
             for i = 1:length(SN.n)
                 set(node_plot(i), {'XData', 'YData', 'MarkerFaceColor', 'MarkerFaceAlpha' }, {SN.n(i).Xs(round), SN.n(i).Ys(round), SN.n(i).COLs(round), SN.n(i).ALPHAs(round)});
+                hold on;
             end
             drawnow;
         end

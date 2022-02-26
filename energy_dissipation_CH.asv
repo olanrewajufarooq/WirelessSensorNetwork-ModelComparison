@@ -118,7 +118,7 @@ for i=1:length(SN.n)
             % Transmission via mobile sinks
             elseif I > length(rn_ids)
                 
-                ms_id = ms_ids(I - length(rn_ids));
+                ms_id = SN.n(ms_ids(I - length(rn_ids))).id;
                 dist_to_sink = sqrt((SN.n(ms_id).x-SN.n(i).x)^2 + (SN.n(ms_id).y-SN.n(i).y)^2);
                 
                 ETx = (energy('tran')+energy('agg'))*k + energy('amp') * k * dist_to_sink^2;

@@ -15,6 +15,10 @@ for sn_method = sn_positioning
         legend_name = capitalize(strjoin(split(sn_method, '_'))) + ': ' + capitalize(strjoin(split(pn_method, '_')));
         sim_params = sim_params_compare(char(name));
         
+        if strcmp(pn_method, "cluster_head") && strcmp(sn_method, "random")
+            legend_name = {'LEACH Algorithm: Static Mobile Sinks'};
+        end
+        
         figure_num = figure_num + 1;
         figure(figure_num)
 

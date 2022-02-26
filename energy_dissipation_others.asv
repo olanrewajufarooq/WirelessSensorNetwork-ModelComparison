@@ -1,4 +1,4 @@
-function [SN, round_params, int_conn_start, int_conn_start_check] = energy_dissipation_others(SN, round, ms_ids, pn_ids, dims, energy, k, round_params, int_conn_start, int_conn_start_check)
+function [SN, round_params, int_conn_start, int_conn_start_check] = energy_dissipation_others(SN, round, ms_ids, pn_ids, energy, k, round_params, int_conn_start, int_conn_start_check)
 %SN, round, dims, energy, k, round_params, method
 %ENERGY_DISSIPATION Energy dissipation function for the WSN
 %   This function evaluates the energy dissipated in the sensor nodes
@@ -50,7 +50,7 @@ for i = 1:length(SN.n)
     % Packet Transfer for Nodes in Given Cluster
     if strcmp(SN.n(i).role, 'N') && strcmp(SN.n(i).cond,'A')
 
-        if SN.n(i).E > 0 % Verification that node is alive and it has a priority node
+        if SN.n(i).E > 0 && SN.n(i).pn_id ~= 0 % Verification that node is alive and it has a priority node
             
             % Initializing the distance matrix
             distances = zeros(1, length(ms_ids) + 1);
@@ -68,53 +68,52 @@ for i = 1:length(SN.n)
             
             % Checking for availability of priority node
             if SN.n(i).pn_id ~= 0
-                distances(length(ms_ids) + 1) = SN.n(i).dnp;
+                distances(length(rn_ids) + length(ms_ids) + 1) = SN.n(i).dnc;
             else
-                distances(length(ms_ids)+ 1)=sqrt( (dims('x_max'))^2 + (dims('y_max'))^2 );
+                distances(length(rn_ids) + length(ms_ids) + 1)=sqrt( (dims('x_max'))^2 + (dims('y_max'))^2 );
             end
             
-            [~,I]=min(distances(:)); % finds the minimum distance of node to SN
-            
-            if I == length(ms_ids) + 1
-                ETx = energy('tran')*k + energy('amp') * k * SN.n(i).dnp^2;
-                SN.n(i).E = SN.n(i).E - ETx;
-                SN.n(i).alpha = (4/25)*(2.5^4).^(SN.n(i).E);
-                round_params('total energy') = round_params('total energy') + ETx;
+            ETx = energy('tran')*k + energy('amp') * k * SN.n(i).dnp^2;
+            SN.n(i).E = SN.n(i).E - ETx;
+            SN.n(i).alpha = (4/25)*(2.5^4).^(SN.n(i).E);
+            round_params('total energy') = round_params('total energy') + ETx;
 
-                % Dissipation for priority node during reception
-                if SN.n(SN.n(i).pn_id).E > 0 && strcmp(SN.n(SN.n(i).pn_id).cond, 'A') && strcmp(SN.n(SN.n(i).pn_id).role, 'P')
-                    ERx = (energy('rec') + energy('agg'))*k;
-                    round_params('total energy') = round_params('total energy') + ERx;
-                    SN.n(SN.n(i).pn_id).E = SN.n(SN.n(i).pn_id).E - ERx;
-                    SN.n(SN.n(i).pn_id).alpha = (4/25)*(2.5^4).^(SN.n(SN.n(i).pn_id).E);
-
-                    if SN.n(SN.n(i).pn_id).E<=0  % if priority node energy depletes with reception
-                        SN.n(SN.n(i).pn_id).cond = 'D';
-                        SN.n(SN.n(i).pn_id).rop=round;
-                        SN.n(SN.n(i).pn_id).E=0;
-                        SN.n(SN.n(i).pn_id).alpha = 0;
-                        round_params('dead nodes') = round_params('dead nodes') + 1;
-                        round_params('operating nodes') = round_params('operating nodes') - 1;
-                    end
-                end
-                
-            else
-                
-                ms_id = I;
-                dist_to_sink = sqrt((SN.n(ms_id).x-SN.n(i).x)^2 + (SN.n(ms_id).y-SN.n(i).y)^2);
-                
-                ETx = (energy('tran')+energy('agg'))*k + energy('amp') * k * dist_to_sink^2;
-                SN.n(i).E = SN.n(i).E - ETx;
-                SN.n(i).alpha = (4/25)*(2.5^4).^(SN.n(i).E);
-                round_params('total energy') = round_params('total energy') + ETx;
-
-                % Energy Dissipation in Mobile Sink
-                ERx=(energy('rec') + energy('agg'))*k;
+            % Dissipation for priority node during reception
+            if SN.n(SN.n(i).pn_id).E > 0 && strcmp(SN.n(SN.n(i).pn_id).cond, 'A') && strcmp(SN.n(SN.n(i).pn_id).role, 'P')
+                ERx = (energy('rec') + energy('agg'))*k;
                 round_params('total energy') = round_params('total energy') + ERx;
-                round_params('packets') = round_params('packets') + ERx;
-                
+                SN.n(SN.n(i).pn_id).E = SN.n(SN.n(i).pn_id).E - ERx;
+                SN.n(SN.n(i).pn_id).alpha = (4/25)*(2.5^4).^(SN.n(SN.n(i).pn_id).E);
+
+                if SN.n(SN.n(i).pn_id).E<=0  % if priority node energy depletes with reception
+                    SN.n(SN.n(i).pn_id).cond = 'D';
+                    SN.n(SN.n(i).pn_id).rop=round;
+                    SN.n(SN.n(i).pn_id).E=0;
+                    SN.n(SN.n(i).pn_id).alpha = 0;
+                    round_params('dead nodes') = round_params('dead nodes') + 1;
+                    round_params('operating nodes') = round_params('operating nodes') - 1;
+                end
             end
-        
+            
+        elseif SN.n(i).E > 0 && SN.n(i).pn_id == 0 % Verification that node is alive but it has no priority node
+            
+            dist_to_sinks = zeros(1, length(ms_ids));
+            for j = 1:length(ms_ids)
+                dist_to_sinks(j) = sqrt( (SN.n(ms_ids(j)).x - SN.n(i).x)^2 + (SN.n(ms_ids(j)).y - SN.n(i).y)^2 );
+            end
+            
+            dns = min(dist_to_sinks(:)); % Distance to closest mobile sink
+            
+            ETx = energy('tran')*k + energy('amp') * k * dns^2;
+            SN.n(i).E = SN.n(i).E - ETx;
+            SN.n(i).alpha = (4/25)*(2.5^4).^(SN.n(i).E);
+            round_params('total energy') = round_params('total energy') + ETx;
+            
+            % Energy Dissipation in Mobile Sink
+            ERx=(energy('rec') + energy('agg'))*k;
+            round_params('total energy') = round_params('total energy') + ERx;
+            round_params('packets') = round_params('packets') + 1;
+
         end
 
         % Check for node depletion
