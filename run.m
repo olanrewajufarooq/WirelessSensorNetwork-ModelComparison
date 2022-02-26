@@ -19,7 +19,7 @@ ener_agg = 100e-12; % Aggregation Energy
 % Simulation Parameters
 n = 100; % Number of nodes
 
-sn = 4; % Number of mobile sink
+sn = 3; % Number of mobile sink
 sn_positioning = ["random", "even_nonconfined", "even_confined"]; % Mobile Sink Positioning Method to be compared
 % Possible values: random, even_nonconfined, even_confined
 pn_select_method = ["cluster_head", "no_of_visit", "prediction"]; % cluster_head only applies to random.
@@ -37,7 +37,7 @@ rounds = 120; % Number of rounds per simulation
 k = 80000; % Bits transmitted per packet
 
 % Clustering Paramters
-n_clusters = 5;
+n_clusters = 7;
 
 % Mobility Parameters
 min_dist = 0; % Minimum mobility for sensor nodes (in m)
