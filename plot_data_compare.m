@@ -27,7 +27,7 @@ end
         
 
 i = 0;
-colors = containers.Map( {1, 2, 3, 4, 5, 6}, {'-r', '-g', '-b', '-k', '-m', '-y'} );
+colors = containers.Map( {1, 2, 3, 4, 5, 6, 7}, {'-r', '-g', '-b', '-k', '-m', '-y', '-c'} );
 for param = ["dead nodes", "operating nodes", "total energy", "packets", "contact time", "interconnect time"]
     i = i + 1;
     subplot(2, 3, i)

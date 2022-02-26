@@ -155,7 +155,7 @@ for i = 1:length(SN.n)
                        reg = ( atan(x_rel/y_rel) + 2*pi )/clust_angle;
                     end
                     pos = ceil(reg);
-                    direction_moved = direction_moved + (3*180/pi);
+                    direction_moved = direction_moved + (0.05*180/pi);
                 end
             end
             
