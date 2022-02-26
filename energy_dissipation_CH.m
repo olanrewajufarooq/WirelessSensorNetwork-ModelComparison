@@ -67,13 +67,13 @@ for i=1:length(SN.n)
             
             % Search for closest mobile sink
             for j=1:length(ms_ids)
-                k = length(rn_ids) + j;
+                l = length(rn_ids) + j;
 
                 if strcmp(SN.n(ms_ids(j)).cond,'A')
                     % distance of cluster head to routing node
-                    distances(k)=sqrt((SN.n(ms_ids(j)).x-SN.n(i).x)^2 + (SN.n(ms_ids(j)).y-SN.n(i).y)^2);
+                    distances(l)=sqrt((SN.n(ms_ids(j)).x-SN.n(i).x)^2 + (SN.n(ms_ids(j)).y-SN.n(i).y)^2);
                 else
-                    distances(k)=sqrt( (dims('x_max'))^2 + (dims('y_max'))^2 );
+                    distances(l)=sqrt( (dims('x_max'))^2 + (dims('y_max'))^2 );
                 end
 
             end
@@ -90,7 +90,7 @@ for i=1:length(SN.n)
             % Transmission via cluster head
             if I == length(rn_ids) + length(ms_ids) + 1
                 
-                ETx = energy('tran')*k + energy('amp') * k * SN.n(i).dnc^2;
+                ETx = energy('tran')*k + energy('amp') * k * (distances(I))^2;
                 SN.n(i).E = SN.n(i).E - ETx;
                 SN.n(i).alpha = (4/25)*(2.5^4).^(SN.n(i).E);
                 round_params('total energy') = round_params('total energy') + ETx;
@@ -225,13 +225,13 @@ for ch_id = ch_ids
 
                 % Search for closest mobile sink
                 for j=1:length(ms_ids)
-                    k = length(rn_ids) + j;
+                    l = length(rn_ids) + j;
 
                     if strcmp(SN.n(ms_ids(j)).cond,'A')
                         % distance of cluster head to mobile sink
-                        distances(k)=sqrt((SN.n(ms_ids(j)).x-SN.n(ch_id).x)^2 + (SN.n(ms_ids(j)).y-SN.n(ch_id).y)^2);
+                        distances(l)=sqrt((SN.n(ms_ids(j)).x-SN.n(ch_id).x)^2 + (SN.n(ms_ids(j)).y-SN.n(ch_id).y)^2);
                     else
-                        distances(k)=sqrt( (dims('x_max'))^2 + (dims('y_max'))^2 );
+                        distances(l)=sqrt( (dims('x_max'))^2 + (dims('y_max'))^2 );
                     end
 
                 end
