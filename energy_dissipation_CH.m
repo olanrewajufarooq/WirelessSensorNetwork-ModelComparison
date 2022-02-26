@@ -1,4 +1,4 @@
-function [SN, round_params, int_conn_start, int_conn_start_check] = energy_dissipation_others(SN, round, rn_ids, ms_ids, energy, k, round_params, int_conn_start, int_conn_start_check)
+function [SN, round_params, int_conn_start, int_conn_start_check] = energy_dissipation_CH(SN, round, rn_ids, ms_ids, dims, energy, k, round_params, int_conn_start, int_conn_start_check)
 %SN, round, dims, energy, k, round_params, method
 %ENERGY_DISSIPATION Energy dissipation function for the WSN
 %   This function evaluates the energy dissipated in the sensor nodes
@@ -44,7 +44,7 @@ if int_conn_start_check
 end
 
 % Number of Channel Heads Selected
-CL_heads = unique([SN.n.chid]);
+CL_heads = length(unique([SN.n.chid]));
 
 start_time = toc;
 
@@ -113,7 +113,7 @@ end
 
 % Transmission from sensor node through shortest route
 for i=1:length(SN.n)
-    if strcmp(SN.n(i).cond,'A') && strcmp(SN.n(i).role, 'N') && CL_heads > 0
+    if (strcmp(SN.n(i).cond,'A') && strcmp(SN.n(i).role, 'N') && (CL_heads > 0) )
         if SN.n(i).E > 0
             
             % Initializing the distance matrix
@@ -162,19 +162,21 @@ for i=1:length(SN.n)
                 round_params('total energy') = round_params('total energy') + ETx;
 
                 % Dissipation for channel head during reception
-                if SN.n(SN.n(i).chid).E > 0 && strcmp(SN.n(SN.n(i).chid).cond, 'A') && strcmp(SN.n(SN.n(i).chid).role, 'C')
-                    ERx = (energy('rec') + energy('agg'))*k;
-                    round_params('total energy') = round_params('total energy') + ERx;
-                    SN.n(SN.n(i).chid).E = SN.n(SN.n(i).chid).E - ERx;
-                    SN.n(SN.n(i).chid).alpha = (4/25)*(2.5^4).^(SN.n(SN.n(i).chid).E);
+                if SN.n(i).chid ~= 0
+                    if ( (SN.n(SN.n(i).chid).E > 0) && strcmp(SN.n(SN.n(i).chid).cond, 'A') && strcmp(SN.n(SN.n(i).chid).role, 'C') )
+                        ERx = (energy('rec') + energy('agg'))*k;
+                        round_params('total energy') = round_params('total energy') + ERx;
+                        SN.n(SN.n(i).chid).E = SN.n(SN.n(i).chid).E - ERx;
+                        SN.n(SN.n(i).chid).alpha = (4/25)*(2.5^4).^(SN.n(SN.n(i).chid).E);
 
-                    if SN.n(SN.n(i).chid).E<=0  % if priority node energy depletes with reception
-                        SN.n(SN.n(i).chid).cond = 'D';
-                        SN.n(SN.n(i).chid).rop=round;
-                        SN.n(SN.n(i).chid).E=0;
-                        SN.n(SN.n(i).chid).alpha = 0;
-                        round_params('dead nodes') = round_params('dead nodes') + 1;
-                        round_params('operating nodes') = round_params('operating nodes') - 1;
+                        if SN.n(SN.n(i).chid).E<=0  % if priority node energy depletes with reception
+                            SN.n(SN.n(i).chid).cond = 'D';
+                            SN.n(SN.n(i).chid).rop=round;
+                            SN.n(SN.n(i).chid).E=0;
+                            SN.n(SN.n(i).chid).alpha = 0;
+                            round_params('dead nodes') = round_params('dead nodes') + 1;
+                            round_params('operating nodes') = round_params('operating nodes') - 1;
+                        end
                     end
                 end
 
@@ -243,11 +245,11 @@ end
 % Packet Transmission from Channel Heads to the Mobile Sink
 ch_ids = unique([SN.n.chid]);
 
-for chid = ch_ids
-    if (chid ~= 0)
-        if strcmp(SN.n(chid).role, 'C') &&  strcmp(SN.n(chid).cond, 'A')
+for ch_id = ch_ids
+    if (ch_id ~= 0)
+        if strcmp(SN.n(ch_id).role, 'C') &&  strcmp(SN.n(ch_id).cond, 'A')
 
-            if SN.n(chid).E > 0
+            if SN.n(ch_id).E > 0
 
                 % Initializing the distance matrix
                 distances = zeros(1, length(rn_ids) + length(ms_ids));
@@ -257,7 +259,7 @@ for chid = ch_ids
 
                     if strcmp(SN.n(rn_ids(j)).cond,'A')
                         % distance of cluster head to routing node
-                        distances(j)=sqrt((SN.n(rn_ids(j)).x-SN.n(chid).x)^2 + (SN.n(rn_ids(j)).y-SN.n(chid).y)^2);
+                        distances(j)=sqrt((SN.n(rn_ids(j)).x-SN.n(ch_id).x)^2 + (SN.n(rn_ids(j)).y-SN.n(ch_id).y)^2);
                     else
                         distances(j)=sqrt( (dims('x_max'))^2 + (dims('y_max'))^2 );
                     end
@@ -270,7 +272,7 @@ for chid = ch_ids
 
                     if strcmp(SN.n(ms_ids(j)).cond,'A')
                         % distance of cluster head to mobile sink
-                        distances(k)=sqrt((SN.n(ms_ids(j)).x-SN.n(chid).x)^2 + (SN.n(ms_ids(j)).y-SN.n(chid).y)^2);
+                        distances(k)=sqrt((SN.n(ms_ids(j)).x-SN.n(ch_id).x)^2 + (SN.n(ms_ids(j)).y-SN.n(ch_id).y)^2);
                     else
                         distances(k)=sqrt( (dims('x_max'))^2 + (dims('y_max'))^2 );
                     end
@@ -283,11 +285,11 @@ for chid = ch_ids
                 if I > length(rn_ids)
 
                     ms_id = SN.n(I - length(rn_ids)).id;
-                    dist_to_sink = sqrt((SN.n(ms_id).x-SN.n(chid).x)^2 + (SN.n(ms_id).y-SN.n(chid).y)^2);
+                    dist_to_sink = sqrt((SN.n(ms_id).x-SN.n(ch_id).x)^2 + (SN.n(ms_id).y-SN.n(ch_id).y)^2);
 
                     ETx = (energy('tran')+energy('agg'))*k + energy('amp') * k * dist_to_sink^2;
-                    SN.n(chid).E = SN.n(chid).E - ETx;
-                    SN.n(chid).alpha = (4/25)*(2.5^4).^(SN.n(chid).E);
+                    SN.n(ch_id).E = SN.n(ch_id).E - ETx;
+                    SN.n(ch_id).alpha = (4/25)*(2.5^4).^(SN.n(ch_id).E);
                     round_params('total energy') = round_params('total energy') + ETx;
 
                     % Energy Dissipation in Mobile Sink
@@ -298,34 +300,34 @@ for chid = ch_ids
                 else           
 
                     dcr = distances(I); % assigns the distance of node to RN
-                    SN.n(chid).route_id = rn_ids(I);
+                    SN.n(ch_id).route_id = rn_ids(I);
 
                     % Transmission energy to the Routing Node
                     ETx = (energy('tran')+energy('agg'))*k + energy('amp') * k * dcr^2;
-                    SN.n(chid).E = SN.n(chid).E - ETx;
-                    SN.n(chid).alpha = (4/25)*(2.5^4).^(SN.n(chid).E);
+                    SN.n(ch_id).E = SN.n(ch_id).E - ETx;
+                    SN.n(ch_id).alpha = (4/25)*(2.5^4).^(SN.n(ch_id).E);
                     round_params('total energy') = round_params('total energy') + ETx;
 
                     % Receiving energy at the Routing Node
                     ERx=( energy('rec') + energy('agg') )*k;
                     round_params('total energy') = round_params('total energy') + ERx;
-                    SN.n(SN.n(chid).route_id).E=SN.n(SN.n(chid).route_id).E - ERx;
-                    SN.n(SN.n(chid).route_id).alpha = (4/25)*(2.5^4).^(SN.n(SN.n(chid).route_id).E);
+                    SN.n(SN.n(ch_id).route_id).E=SN.n(SN.n(ch_id).route_id).E - ERx;
+                    SN.n(SN.n(ch_id).route_id).alpha = (4/25)*(2.5^4).^(SN.n(SN.n(ch_id).route_id).E);
 
                     % Transmission from the routing node to the Mobile Sink
-                    if SN.n(SN.n(chid).route_id).E > 0 
+                    if SN.n(SN.n(ch_id).route_id).E > 0 
 
                         % Checking for the closest mobile sink
                         distances = zeros(1, length(ms_ids));
                         for j = 1:length(ms_ids)
-                            distances(j) = sqrt( (SN.n(ms_ids(j)).x - SN.n(chid).x)^2 + (SN.n(ms_ids(j)).y - SN.n(chid).y)^2 );
+                            distances(j) = sqrt( (SN.n(ms_ids(j)).x - SN.n(ch_id).x)^2 + (SN.n(ms_ids(j)).y - SN.n(ch_id).y)^2 );
                         end
 
                         dist_to_nearest_sink = min(distances(:)); % Distance to closest mobile sink
 
                         ETx = (energy('tran')+energy('agg'))*k + energy('amp') * k * dist_to_nearest_sink^2;
-                        SN.n(SN.n(chid).route_id).E = SN.n(SN.n(chid).route_id).E - ETx;
-                        SN.n(SN.n(chid).route_id).alpha = (4/25)*(2.5^4).^(SN.n(SN.n(chid).route_id).E);
+                        SN.n(SN.n(ch_id).route_id).E = SN.n(SN.n(ch_id).route_id).E - ETx;
+                        SN.n(SN.n(ch_id).route_id).alpha = (4/25)*(2.5^4).^(SN.n(SN.n(ch_id).route_id).E);
                         round_params('total energy') = round_params('total energy') + ETx;
                         round_params('packets') = round_params('packets') + 1;
 
@@ -334,24 +336,24 @@ for chid = ch_ids
                         round_params('total energy') = round_params('total energy') + ERx;
                     end
 
-                    if SN.n(SN.n(chid).route_id).E <= 0  % if routing node energy depletes with transmission
-                        SN.n(SN.n(chid).route_id).cond = 'D';
-                        SN.n(SN.n(chid).route_id).rop=round;
-                        SN.n(SN.n(chid).route_id).E=0;
-                        SN.n(SN.n(chid).route_id).alpha = 0;
+                    if SN.n(SN.n(ch_id).route_id).E <= 0  % if routing node energy depletes with transmission
+                        SN.n(SN.n(ch_id).route_id).cond = 'D';
+                        SN.n(SN.n(ch_id).route_id).rop=round;
+                        SN.n(SN.n(ch_id).route_id).E=0;
+                        SN.n(SN.n(ch_id).route_id).alpha = 0;
                         round_params('dead nodes') = round_params('dead nodes') + 1;
                         round_params('operating nodes') = round_params('operating nodes') - 1;
                     end
 
                 end
 
-                if  SN.n(chid).E <= 0 % if cluster heads energy depletes with transmission
+                if  SN.n(ch_id).E <= 0 % if cluster heads energy depletes with transmission
                     round_params('dead nodes') = round_params('dead nodes') + 1;
                     round_params('operating nodes') = round_params('operating nodes') - 1;
-                    SN.n(chid).cond='D';
-                    SN.n(chid).rop=round;
-                    SN.n(chid).E=0;
-                    SN.n(chid).alpha = 0;
+                    SN.n(ch_id).cond='D';
+                    SN.n(ch_id).rop=round;
+                    SN.n(ch_id).E=0;
+                    SN.n(ch_id).alpha = 0;
                 end
 
             end

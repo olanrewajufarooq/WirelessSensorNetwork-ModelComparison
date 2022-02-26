@@ -1,4 +1,4 @@
-function [SN] = cluster_grouping(SN,CL, CLheads)
+function [SN] = cluster_grouping_CH(SN, CL)
 %CLUSTER_GROUPING Grouping Nodes into Clusters
 %   This function group nodes in the wireless sensor network (WSN) into the
 %   clusters based on their distance from the elected cluster heads
@@ -10,6 +10,12 @@ function [SN] = cluster_grouping(SN,CL, CLheads)
 %
 %   OUTPUT PARAMETERS
 %   SN - all sensors nodes (including routing routes)
+
+try
+    CLheads = length(CL.n);
+catch
+    CLheads = 0;
+end
 
 for i=1:length(SN.n)
     if  (SN.n(i).role == 'N') && (SN.n(i).E > 0) && CLheads > 0 % if node is normal

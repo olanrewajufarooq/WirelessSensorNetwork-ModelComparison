@@ -59,7 +59,7 @@ int_conn_start = toc;
 int_conn_start_check = false;
 
 % Round Display Initialization
-fprintf('\n\n\nRounds for \nMobile Sink Positioning Method: %s \nPriority Node Selection Method: %s \n', sn_select_method, pn_select_method);
+fprintf('Rounds for \nMobile Sink Positioning Method: %s \nPriority Node Selection Method: %s \n', sn_select_method, pn_select_method);
 
 for round=1:rounds
     
@@ -79,7 +79,7 @@ for round=1:rounds
     if strcmp(pn_select_method, "prediction")
         [SN, pn_ids] = priority_nodes_selection_prediction(SN, ms_ids, sn_model, past_data_considered);
     elseif strcmp(pn_select_method, "no_of_visit")
-        [SN, pn_ids] = priority_nodes_selection_visits(SN);
+        [SN, pn_ids] = priority_nodes_selection_visits(SN, ms_ids, sn_model, past_data_considered);
     elseif strcmp(pn_select_method, "cluster_head")
         [SN, CL] = cluster_head_election(SN, round);
         SN = cluster_grouping_CH(SN, CL);
@@ -87,7 +87,7 @@ for round=1:rounds
     
     % Perform packet transfer
     if strcmp(pn_select_method, "cluster_head")
-        [SN, round_params, int_conn_start, int_conn_start_check] = energy_dissipation_CH(SN, round, rn_ids, ms_ids, dims, ener, k, round_params, int_conn_start, int_conn_start_check);
+        [SN, round_params, int_conn_start, int_conn_start_check] = energy_dissipation_CH(SN, round, rn_ids, ms_ids, ener, k, round_params, int_conn_start, int_conn_start_check)
     else
         [SN, round_params, int_conn_start, int_conn_start_check] = energy_dissipation_others(SN, round, ms_ids, pn_ids, ener, k, round_params, int_conn_start, int_conn_start_check);
     end

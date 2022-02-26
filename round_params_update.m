@@ -1,4 +1,4 @@
-function [SN, round_params, stability_period_check, lifetime_check] = round_params_update(SN, round_params, dims, ms_ids, round, rounds, stability_period_check, lifetime_check, mob_params, sn_select_method)
+function [SN, round_params, stability_period_check, lifetime_check] = round_params_update(SN, round_params, dims, ms_ids, round, rounds, stability_period_check, lifetime_check, mob_params, sn_select_method, pn_select_method)
 %ROUND_PARAMS_UPDATE Update the Simulation Parameters during a round
 %   This function is used to update all the parameters used in  gathering
 %   data for the analytics of the wireless network sensor (WSN).
@@ -54,49 +54,52 @@ end
 
 % Update the amount of visitation by the mobile sinks by proximity to the
 % sink nodes
-ids_visited = [];
-for i = 1:length(SN.n)
-    if (strcmp(SN.n(i).role, 'N') || strcmp(SN.n(i).role, 'P')) && strcmp(SN.n(i).cond, 'A')
-        
-        dist_to_sinks = zeros(1, length(ms_ids));
-        for j = 1:length(ms_ids)
-            dist_to_sinks(j) = sqrt( (SN.n(ms_ids(j)).x - SN.n(i).x)^2 + (SN.n(ms_ids(j)).y - SN.n(i).y)^2 );
-        end
+if strcmp(pn_select_method, "no_of_visit")
+    ids_visited = [];
+    for i = 1:length(SN.n)
+        if (strcmp(SN.n(i).role, 'N') || strcmp(SN.n(i).role, 'P')) && strcmp(SN.n(i).cond, 'A')
 
-        dns = min(dist_to_sinks(:)); % Distance to closest mobile sink
-        
-        if dns <= mob_params('min_visit_dist')
-           SN.n(i).sn_visits = SN.n(i).sn_visits + 1;
-           ids_visited(end+1) = i;
-        end
-    end
-end
-
-% Update the amount of visitation by the mobile sinks by clusters
-clusters = unique([SN.n.cluster]);
-
-for cluster = clusters(~isnan(clusters))
-    node_ids = []; % Node ID
-    min_dists_to_sinks = []; % A nodes shortest distance to a predicted path
-        
-    for i=1:length(SN.n)
-        if (strcmp(SN.n(i).role, 'N') || strcmp(SN.n(i).role, 'P')) && strcmp(SN.n(i).cond, 'A') && (SN.n(i).cluster == cluster) && (~isnan(cluster))
-            node_ids(end+1) = SN.n(i).id;
-            
             dist_to_sinks = zeros(1, length(ms_ids));
             for j = 1:length(ms_ids)
-                dist_to_sinks(j) = sqrt( (SN.n(i).x - SN.n(ms_ids(j)).x)^2 + (SN.n(i).y - SN.n(ms_ids(j)).y)^2 );
+                dist_to_sinks(j) = sqrt( (SN.n(ms_ids(j)).x - SN.n(i).x)^2 + (SN.n(ms_ids(j)).y - SN.n(i).y)^2 );
             end
-            
-            min_dists_to_sinks(end+1) = min(dist_to_sinks(:));
-        end 
+
+            dns = min(dist_to_sinks(:)); % Distance to closest mobile sink
+
+            if dns <= mob_params('min_visit_dist')
+               SN.n(i).sn_visits = SN.n(i).sn_visits + 1;
+               ids_visited(end+1) = i;
+            end
+        end
     end
-    
-    [~, J] = max(min_dists_to_sinks(:)); % finds the maximum visits of node by MS
-    
-    node_id = node_ids(J);
-    if ~ismember(node_id, ids_visited)
-        SN.n(node_id).sn_visits = SN.n(node_id).sn_visits + 1;
+
+
+    % Update the amount of visitation by the mobile sinks by clusters
+    clusters = unique([SN.n.cluster]);
+
+    for cluster = clusters(~isnan(clusters))
+        node_ids = []; % Node ID
+        min_dists_to_sinks = []; % A nodes shortest distance to a predicted path
+
+        for i=1:length(SN.n)
+            if (strcmp(SN.n(i).role, 'N') || strcmp(SN.n(i).role, 'P')) && strcmp(SN.n(i).cond, 'A') && (SN.n(i).cluster == cluster) && (~isnan(cluster))
+                node_ids(end+1) = SN.n(i).id;
+
+                dist_to_sinks = zeros(1, length(ms_ids));
+                for j = 1:length(ms_ids)
+                    dist_to_sinks(j) = sqrt( (SN.n(i).x - SN.n(ms_ids(j)).x)^2 + (SN.n(i).y - SN.n(ms_ids(j)).y)^2 );
+                end
+
+                min_dists_to_sinks(end+1) = min(dist_to_sinks(:));
+            end 
+        end
+
+        [~, J] = max(min_dists_to_sinks(:)); % finds the maximum visits of node by MS
+
+        node_id = node_ids(J);
+        if ~ismember(node_id, ids_visited)
+            SN.n(node_id).sn_visits = SN.n(node_id).sn_visits + 1;
+        end
     end
 end
 
@@ -122,7 +125,10 @@ for i = 1:length(SN.n)
     if (dist_moved ~= 0)
         mobility_complete = false;
         while (~mobility_complete)
-            if (strcmp(SN.n(i).role, 'N') || strcmp(SN.n(i).role, 'P')) || ( strcmp(SN.n(i).role, 'S') && (strcmp(sn_select_method, 'random')||strcmp(sn_select_method, 'even_nonconfined')) )
+            if ( strcmp(SN.n(i).role, 'N') || strcmp(SN.n(i).role, 'P') )
+                x_dest = SN.n(i).x + dist_moved*cosd(direction_moved);
+                y_dest = SN.n(i).y + dist_moved*sind(direction_moved);
+            elseif ( strcmp(SN.n(i).role, 'S') && (strcmp(sn_select_method, 'random') || strcmp(sn_select_method, 'even_nonconfined')) )
                 x_dest = SN.n(i).x + dist_moved*cosd(direction_moved);
                 y_dest = SN.n(i).y + dist_moved*sind(direction_moved);
             elseif ( strcmp(SN.n(i).role, 'S') && strcmp(sn_select_method, 'even_confined') )

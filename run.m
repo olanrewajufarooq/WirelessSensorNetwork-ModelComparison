@@ -20,19 +20,19 @@ ener_agg = 100e-12; % Aggregation Energy
 n = 100; % Number of nodes
 
 sn = 4; % Number of mobile sink
-sn_positioning = ["random", "even_nonconfined", "even_confined"]; % Mobile Sink Prediction to be compared
+sn_positioning = ["random", "even_nonconfined", "even_confined"]; % Mobile Sink Positioning Method to be compared
 % Possible values: random, even_nonconfined, even_confined
-pn_select_method = ["cluster_head", "no_of_visit", "prediction"];
+pn_select_method = ["cluster_head", "no_of_visit", "prediction"]; % cluster_head only applies to random.
 % Possible values: cluster_head, no_of_visit, prediction
 
-if ismember("", pn_select_method)
+if ismember("prediction", pn_select_method)
     generate_new_model = false; % boolean to decide the generation of new predictive model for the mobile sinks
     train_data = 1; % Number of training rounds where data is to be gathered
     past_data_considered = 10; % Number of past data ussed in prediction
 end
 
-rounds = 1000; % Number of rounds per simulation
-k = 8000; % Bits transmitted per packet
+rounds = 20; % Number of rounds per simulation
+k = 80000; % Bits transmitted per packet
 
 % Clustering Paramters
 n_clusters = 5;
@@ -50,35 +50,54 @@ mob_params = containers.Map({'min_dist', 'max_dist', 'sn_min_dist', 'sn_max_dist
 
 %% Prediction Algorithm Modelling
 
-if generate_new_model
-    % Gather Mobile Sink Data (Based on Simulation Input)
-    data = data_gathering(n, sn, sn_method, dims, ener, n_clusters, rounds, mob_params, train_data);
+if ismember("prediction", pn_select_method)
+    if generate_new_model
+        % Gather Mobile Sink Data (Based on Simulation Input)
+        data = data_gathering(n, sn, sn_method, dims, ener, n_clusters, rounds, mob_params, train_data);
 
-    % Data Munging
-    sn_model = model_training(data, train_data, sn);
-else
-    sn_model = load_previous_model();
+        % Data Munging
+        sn_model = model_training(data, train_data, sn);
+    else
+        sn_model = load_previous_model();
+    end
 end
 
 %% Initialization of the WSN
-[initial_SN, ms_ids] = createWSN(n, sn, sn_method, dims, ener('init'), rounds);
+[initial_SN, ms_ids] = createWSN(n, sn, sn_positioning, dims, ener('init'), rounds);
 
 %% Comparison Model
+
+SN_compare = containers.Map();
+sim_params_compare = containers.Map();
+
 for sn_method = sn_positioning
-    % Smiluation of the WSN
-    [SN, round_params, sim_params] = simulation_rounds(rounds, initial_SN, dims, ener, k, ms_ids, n_clusters, mob_params, sn_model, past_data_considered, sn_method);
+    for pn_method = pn_select_method
+        
+        if strcmp(pn_method, "cluster_head") && ~strcmp(sn_method, "random")
+            continue
+        end
+        
+        % Smiluation of the WSN
+        [SN, round_params, sim_params] = simulation_rounds(rounds, initial_SN, dims, ener, k, ms_ids, n_clusters, mob_params, sn_model, past_data_considered, sn_method, pn_method);
+        name = sn_method + " " + pn_method;
+        SN_compare(name) = SN;
+        sim_params_compare(name) = sim_params;
 
-   % Lifetime and Stability Periods.
+        % Lifetime and Stability Periods.
 
-    fprintf('\n\nSimulation Summary\n\n')
-    fprintf('Stability Period: %d secs\n', round(round_params('stability period'), 2))
-    fprintf('Stability Period Round: %d\n', round_params('stability period round'))
-    fprintf('Lifetime: %d secs\n', round(round_params('lifetime'), 2))
-    fprintf('Lifetime Round: %d\n', round_params('lifetime round'))
-    
+        fprintf('\n\nSimulation Summary\n\n')
+        fprintf('Stability Period: %d secs\n', round(round_params('stability period'), 2))
+        fprintf('Stability Period Round: %d\n', round_params('stability period round'))
+        fprintf('Lifetime: %d secs\n', round(round_params('lifetime'), 2))
+        fprintf('Lifetime Round: %d\n', round_params('lifetime round'))
+        
+    end
 end
 
-%% Data Visualisation
+%% Data Visualisation - Individuals
+plot_data(rounds, sim_params)
+
+%% Data Visualisation - Comparisons
 plot_data(rounds, sim_params)
 
 %% Mobility Visualization

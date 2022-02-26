@@ -1,4 +1,4 @@
-function [SN, ms_ids] = createWSN(nodes, sink_nodes, sink_nodes_method, dims, energy, rounds, seed)
+function [SN, ms_ids] = createWSN(nodes, sink_nodes, sink_nodes_methods, dims, energy, rounds, seed)
 %CREATEWSN Creation of the Wireless Sensor Network
 %   This function gives the initialization of the sensor nodes, the routing
 %   nodes and the base station of the wireless sensor network (WSN). It
@@ -22,6 +22,12 @@ function [SN, ms_ids] = createWSN(nodes, sink_nodes, sink_nodes_method, dims, en
 
 if sink_nodes >= nodes
     error('The number of mobile sinks must be less than the total number of nodes')
+end
+
+if ismember("even_confined", sink_nodes_methods) || ismember("even_nonconfined", sink_nodes_methods)
+    sink_nodes_method = "even_confined";
+else
+    sink_nodes_method = "random";
 end
 
 if nargin < 7
@@ -65,6 +71,14 @@ for i=1:nodes
     SN.n(i).Ys = []; % All positional values through the simulation
     SN.n(i).ALPHAs = zeros(1, rounds); % All corresponding energy values through the simulation
     
+    if ismember("random", sink_nodes_methods)
+        % Some parameters needed for cluster_head method.
+        SN.n(i).chelect = 0;	% states how many times the node was elected as a Cluster Head
+        SN.n(i).rnd_chelect = 0;     % round node got elected as cluster head
+        SN.n(i).rleft = 0;  % rounds left for node to become available for Cluster Head election
+        SN.n(i).dnc = 0;	% nodes distance from the cluster head of the cluster in which he belongs
+    end
+    
 end
 
 %% Building the mobile sinks
@@ -82,6 +96,7 @@ for i=1:sink_nodes
         
         x = dims('x_min') + rand(1,1)*(dims('x_max')-dims('x_min'));
         y = dims('y_min') + rand(1,1)*(dims('y_max')-dims('y_min'));
+        
     elseif sink_nodes > 1 && ( strcmp(sink_nodes_method, 'even_confined') || strcmp(sink_nodes_method, 'even_nonconfined') )
         if seed ~= false
             rng(i_seed);
