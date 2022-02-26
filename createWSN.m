@@ -147,7 +147,7 @@ for i=1:sink_nodes
     
     SN.n(I).col = "k"; % node color when plotting
     SN.n(I).size = 30; % marker size when plotting
-    SN.n(i).alpha = 1; % the opacity when plotting
+    SN.n(I).alpha = 1; % the opacity when plotting
     
     ms_ids(1, i) = I;
 

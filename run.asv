@@ -31,8 +31,8 @@ if ismember("prediction", pn_select_method)
     past_data_considered = 10; % Number of past data ussed in prediction
 end
 
-rounds = 20; % Number of rounds per simulation
-k = 80000; % Bits transmitted per packet
+rounds = 200; % Number of rounds per simulation
+k = 8000; % Bits transmitted per packet
 
 % Clustering Paramters
 n_clusters = 5;
@@ -79,7 +79,7 @@ for sn_method = sn_positioning
         
         % Smiluation of the WSN
         [SN, round_params, sim_params] = simulation_rounds(rounds, initial_SN, dims, ener, k, ms_ids, n_clusters, mob_params, sn_model, past_data_considered, sn_method, pn_method);
-        name = sn_method + " " + pn_method;
+        name = char(sn_method + ' ' + pn_method);
         SN_compare(name) = SN;
         sim_params_compare(name) = sim_params;
 
@@ -96,11 +96,14 @@ for sn_method = sn_positioning
     end
 end
 
-%% Data Visualisations - Individuals
-plot_data_individuals(rounds, sim_params, sn_positioning, pn_select_method)
+%% Data Visualisations
+figure_num = 0;
 
-%% Data Visualisation - Comparisons
-plot_data_compare(rounds, sim_params, sn_positioning, pn_select_method)
+%% Individual Plots
+figure_num = plot_data_individuals(figure_num, rounds, sim_params_compare, sn_positioning, pn_select_method);
 
-%% Mobility Visualization
-plot_simulation(SN, rounds, dims, sn_positioning, pn_select_method)
+%% Comparison Plots
+figure_num = plot_data_compare(figure_num, rounds, sim_params_compare, sn_positioning, pn_select_method);
+
+%% Mobility Visualization Plot
+figure_num = plot_simulation(figure_num, SN_compare, rounds, dims, sn_positioning, pn_select_method);

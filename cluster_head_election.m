@@ -45,13 +45,17 @@ for i=1:length(SN.n)
     
     if seed ~= false
         rng(i_seed);
-        i_seed = i_seed + 1;
+        i_seed = i_seed + 16789;
     end
     
-    if (SN.n(i).role ~= 'R') || (SN.n(i).role ~= 'S')
-    
+    if strcmp(SN.n(i).role, 'R')
+        continue
+    elseif strcmp(SN.n(i).role, 'S')
+        continue
+    else
         SN.n(i).cluster=0;    % reseting cluster in which the node belongs to
         SN.n(i).role='N';       % reseting node role
+        SN.n(i).col = "r";    % reseting node color to red.
         SN.n(i).chid=0;       % reseting cluster head id
 
         % If node has been initially elected as cluster head

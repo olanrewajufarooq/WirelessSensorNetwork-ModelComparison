@@ -59,12 +59,12 @@ int_conn_start = toc;
 int_conn_start_check = false;
 
 % Round Display Initialization
-fprintf('\n\n\nRounds for \nMobile Sink Positioning Method: %s \nPriority Node Selection Method: %s \n', sn_select_method, pn_select_method);
+fprintf('\n\nRounds for \nMobile Sink Positioning Method: %s \nPriority Node Selection Method: %s \n', sn_select_method, pn_select_method);
 
 for round=1:rounds
     
     % Display the current round
-    if mod(round, 200) == 0
+    if mod(round, 100) == 0
         fprintf('%d \n', round); 
     else
         fprintf('.'); 

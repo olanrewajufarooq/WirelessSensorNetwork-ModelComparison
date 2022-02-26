@@ -22,17 +22,19 @@ n = 100; % Number of nodes
 sn = 4; % Number of mobile sink
 sn_positioning = ["random", "even_nonconfined"]; % Mobile Sink Positioning Method to be compared
 % Possible values: random, even_nonconfined, even_confined
-pn_select_method = ["cluster_head", "no_of_visit", "prediction"]; % cluster_head only applies to random.
+pn_select_method = ["cluster_head", "no_of_visit"]; % cluster_head only applies to random.
 % Possible values: cluster_head, no_of_visit, prediction
 
 if ismember("prediction", pn_select_method)
     generate_new_model = false; % boolean to decide the generation of new predictive model for the mobile sinks
     train_data = 1; % Number of training rounds where data is to be gathered
     past_data_considered = 10; % Number of past data ussed in prediction
+else
+    past_data_considered = NaN;
 end
 
-rounds = 20; % Number of rounds per simulation
-k = 80000; % Bits transmitted per packet
+rounds = 200; % Number of rounds per simulation
+k = 8000; % Bits transmitted per packet
 
 % Clustering Paramters
 n_clusters = 5;
@@ -60,6 +62,8 @@ if ismember("prediction", pn_select_method)
     else
         sn_model = load_previous_model();
     end
+else
+    sn_model = NaN;
 end
 
 %% Initialization of the WSN

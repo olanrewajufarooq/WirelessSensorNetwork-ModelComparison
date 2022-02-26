@@ -26,24 +26,29 @@ for sn_method = sn_positioning
         title(title_name);
 
         plot( dims('x_min'),dims('y_min'),dims('x_max'),dims('y_max') );
+        
+        hold on;
 
         for i = 1:length(SN.n)
             node_plot(i) = scatter(SN.n(i).Xs(1), SN.n(i).Ys(1), SN.n(i).size );
             node_plot(i).MarkerFaceColor = SN.n(i).COLs(1);
             node_plot(i).MarkerFaceAlpha = SN.n(i).ALPHAs(1);
             node_plot(i).MarkerEdgeAlpha = 0;
+            
+            hold on;
         end
 
         round_val_text = text(dims('x_min'), dims('y_max'), cat(2,'Round = 0'));
         
         node_plots(plot_i) = {node_plot};
-        round_val_texts(plot_i) = round_val_text;
+        round_val_texts(plot_i) = {round_val_text};
         
         hold on;
         
     end
 end
 
+hold on;
 
 for round = 1:rounds
     
@@ -62,11 +67,12 @@ for round = 1:rounds
             subplot(2, 3, plot_i)
             
             node_plot = node_plots{plot_i};
-            round_val_text = round_val_texts(plot_i);
     
             set(round_val_text, 'String', cat(2,'Round = ', num2str(round)));
+            hold on;
             for i = 1:length(SN.n)
                 set(node_plot(i), {'XData', 'YData', 'MarkerFaceColor', 'MarkerFaceAlpha' }, {SN.n(i).Xs(round), SN.n(i).Ys(round), SN.n(i).COLs(round), SN.n(i).ALPHAs(round)});
+                hold on;
             end
             drawnow;
         end

@@ -43,14 +43,11 @@ if int_conn_start_check
     round_params('interconnect time') = round_params('interconnect time') + int_conn_time;
 end
 
-% Number of Channel Heads Selected
-CL_heads = length(unique([SN.n.chid]));
-
 start_time = toc;
 
 % Transmission from sensor node through shortest route
 for i=1:length(SN.n)
-    if (strcmp(SN.n(i).cond,'A') && strcmp(SN.n(i).role, 'N') && (CL_heads > 0) )
+    if (strcmp(SN.n(i).cond,'A') && strcmp(SN.n(i).role, 'N') )
         if SN.n(i).E > 0
             
             % Initializing the distance matrix
@@ -85,7 +82,7 @@ for i=1:length(SN.n)
             if SN.n(i).cluster ~= 0
                 distances(length(rn_ids) + length(ms_ids) + 1) = SN.n(i).dnc;
             else
-                distances(k)=sqrt( (dims('x_max'))^2 + (dims('y_max'))^2 );
+                distances(length(rn_ids) + length(ms_ids) + 1)=sqrt( (dims('x_max'))^2 + (dims('y_max'))^2 );
             end
 
             [~,I]=min(distances(:)); % finds the minimum distance of node to RN
@@ -118,7 +115,7 @@ for i=1:length(SN.n)
                 end
 
                 
-            % Transmission via base station
+            % Transmission via mobile sinks
             elseif I > length(rn_ids)
                 
                 ms_id = SN.n(I - length(rn_ids)).id;
@@ -152,6 +149,28 @@ for i=1:length(SN.n)
                     round_params('total energy') = round_params('total energy') + ERx;
                     SN.n(SN.n(i).route_id).E = SN.n(SN.n(i).route_id).E - ERx;
                     SN.n(SN.n(i).route_id).alpha = (4/25)*(2.5^4).^(SN.n(SN.n(i).route_id).E);
+                    
+                    % Transmission from the routing node to the Mobile Sink
+                    if SN.n(SN.n(i).route_id).E > 0 
+
+                        % Checking for the closest mobile sink
+                        distances = zeros(1, length(ms_ids));
+                        for j = 1:length(ms_ids)
+                            distances(j) = sqrt( (SN.n(ms_ids(j)).x - SN.n(i).x)^2 + (SN.n(ms_ids(j)).y - SN.n(i).y)^2 );
+                        end
+
+                        dist_to_nearest_sink = min(distances(:)); % Distance to closest mobile sink
+
+                        ETx = (energy('tran')+energy('agg'))*k + energy('amp') * k * dist_to_nearest_sink^2;
+                        SN.n(SN.n(i).route_id).E = SN.n(SN.n(i).route_id).E - ETx;
+                        SN.n(SN.n(i).route_id).alpha = (4/25)*(2.5^4).^(SN.n(SN.n(i).route_id).E);
+                        round_params('total energy') = round_params('total energy') + ETx;
+
+                        % Energy Dissipation in Mobile Sink
+                        ERx = (energy('rec') + energy('agg')) * k;
+                        round_params('total energy') = round_params('total energy') + ERx;
+                        round_params('packets') = round_params('packets') + 1;
+                    end
 
                     if SN.n(SN.n(i).route_id).E<=0  % if priority node energy depletes with reception
                         SN.n(SN.n(i).route_id).cond = 'D';
