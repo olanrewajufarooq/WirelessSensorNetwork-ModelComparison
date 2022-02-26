@@ -2,18 +2,6 @@ function figure_num = plot_data_compare(figure_num, rounds, sim_params_compare, 
 %PLOT_DATA_COMPARE Summary of this function goes here
 %   Detailed explanation goes here
 
-% Sub Plot Defining
-if length(sim_params_compare) <= 4
-    sp_row = 2;
-    sp_col = 2;
-elseif length(sim_params_compare) <= 6
-    sp_row = 2;
-    sp_col = 3;
-elseif
-    sp_row = ceil(length(sim_params_compare)/3);
-    sp_col = 3;
-end
-
 figure_num = figure_num + 1;
 figure(figure_num)
 
@@ -42,7 +30,7 @@ i = 0;
 colors = containers.Map( {1, 2, 3, 4, 5, 6, 7}, {'-r', '-g', '-b', '-k', '-m', '-y', '-c'} );
 for param = ["dead nodes", "operating nodes", "total energy", "packets", "contact time", "interconnect time"]
     i = i + 1;
-    subplot(sp_row, sp_col, i)
+    subplot(2, 3, i)
     
     color_num = 0;
     for sn_method = sn_positioning

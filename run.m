@@ -8,7 +8,7 @@ disp("............................................................");
 disp("............................................................");
 pause(3)
  
-% Initialization Inputs
+%% Initialization Inputs
 max_dimension = 100; % Maximum Dimension of the WSN Plot
 
 initial_energy = 500e-3; % Initial node energy
@@ -16,7 +16,7 @@ transceiver_energy = 50e-9; % Energy Required for transmission and receiving of 
 ener_amp = 100e-12; % Amplification Energy
 ener_agg = 100e-12; % Aggregation Energy
 
-% Simulation Parameters
+%% Simulation Parameters
 n = 100; % Number of nodes
 
 sn = 3; % Number of mobile sink
@@ -33,19 +33,24 @@ else
     past_data_considered = NaN;
 end
 
-rounds = 120; % Number of rounds per simulation
-k = 80000; % Bits transmitted per packet
+rounds = 1000; % Number of rounds per simulation
+k = 8000; % Bits transmitted per packet
 
-% Clustering Paramters
+%% Clustering Paramters
 n_clusters = 7;
 
-% Mobility Parameters
+%% Mobility Parameters
 min_dist = 0; % Minimum mobility for sensor nodes (in m)
 max_dist = 2; % Maximum mobility for sensor nodes (in m)
 sn_min_dist = 1; % Minimum mobility for sink nodes (in m)
 sn_max_dist = 4; %Maximum mobility for sink nodes (in m)
 min_visit_dist = 10; % Minimum distance to affirm visitation by sink nodes (in m)
 mob_params = containers.Map({'min_dist', 'max_dist', 'sn_min_dist', 'sn_max_dist', 'min_visit_dist'}, {min_dist, max_dist, sn_min_dist, sn_max_dist, min_visit_dist});
+
+%% Plotting Query
+plot_individual_data = false;
+plot_comparison_data = true;
+plot_simulation_data = true;
 
 %% Parameters Initialization
 [dims, ener] = param_init(max_dimension, initial_energy, transceiver_energy, ener_agg, ener_amp);
@@ -109,10 +114,16 @@ end
 figure_num = 0;
 
 %% Individual Plots
-figure_num = plot_data_individuals(figure_num, rounds, sim_params_compare, sn_positioning, pn_select_method);
+if plot_individual_data
+    figure_num = plot_data_individuals(figure_num, rounds, sim_params_compare, sn_positioning, pn_select_method);
+end
 
 %% Comparison Plots
-figure_num = plot_data_compare(figure_num, rounds, sim_params_compare, sn_positioning, pn_select_method);
+if plot_comparison_data
+    figure_num = plot_data_compare(figure_num, rounds, sim_params_compare, sn_positioning, pn_select_method);
+end
 
 %% Mobility Visualization Plot
-figure_num = plot_simulation(figure_num, SN_compare, rounds, dims, sn_positioning, pn_select_method);
+if plot_simulation_data
+    figure_num = plot_simulation(figure_num, SN_compare, rounds, dims, sn_positioning, pn_select_method);
+end

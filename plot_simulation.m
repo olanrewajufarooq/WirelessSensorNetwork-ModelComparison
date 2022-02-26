@@ -9,7 +9,7 @@ if length(SN_compare) <= 4
 elseif length(SN_compare) <= 6
     sp_row = 2;
     sp_col = 3;
-elseif
+else
     sp_row = ceil(length(SN_compare)/3);
     sp_col = 3;
 end
@@ -83,6 +83,7 @@ for round = 1:rounds
             
             node_plot = node_plots{plot_i};
             round_val_text = round_val_texts(plot_i);
+            hold on;
     
             set(round_val_text, 'String', cat(2,'Round = ', num2str(round)));
             hold on;
@@ -92,6 +93,7 @@ for round = 1:rounds
                 hold on;
             end
             drawnow;
+            hold on;
         end
     end
 end

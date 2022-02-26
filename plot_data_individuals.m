@@ -2,18 +2,6 @@ function figure_num = plot_data_individuals(figure_num, rounds, sim_params_compa
 %PLOT_DATA_INDIVIDUALS Summary of this function goes here
 %   Detailed explanation goes here
 
-% Sub Plot Defining
-if length(sim_params_compare) <= 4
-    sp_row = 2;
-    sp_col = 2;
-elseif length(sim_params_compare) <= 6
-    sp_row = 2;
-    sp_col = 3;
-elseif
-    sp_row = ceil(length(sim_params_compare)/3);
-    sp_col = 3;
-end
-
 for sn_method = sn_positioning
     
     for pn_method = pn_select_method
@@ -36,7 +24,7 @@ for sn_method = sn_positioning
         i = 0;
         for param = ["dead nodes", "operating nodes", "total energy", "packets", "contact time", "interconnect time"]
             i = i + 1;
-            subplot(sp_row, sp_col, i)
+            subplot(2, 3, i)
 
             plot(1:rounds,sim_params(param),'-r','Linewidth',2);
             hold on
