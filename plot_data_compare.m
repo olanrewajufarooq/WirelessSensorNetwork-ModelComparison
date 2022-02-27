@@ -15,7 +15,7 @@ for sn_method = sn_positioning
             continue
         elseif strcmp(pn_method, "cluster_head") && strcmp(sn_method, "random")
             k = k + 1;
-            legend_names(k) = {'LEACH Algorithm: Single Static Sinks'};
+            legend_names(k) = {'LEACH Algorithm: Static Sinks'};
         else
             k = k + 1;
             legend_names(k) = { capitalize(strjoin(split(sn_method, '_'))) + ': ' + capitalize(strjoin(split(pn_method, '_'))) };
