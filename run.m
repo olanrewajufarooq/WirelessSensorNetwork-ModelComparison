@@ -7,7 +7,7 @@ disp("Welcome to Wireless Sensor Simulation");
 disp("............................................................");
 disp("............................................................");
 pause(3)
- 
+
 %% Initialization Inputs
 max_dimension = 100; % Maximum Dimension of the WSN Plot
 
@@ -26,9 +26,9 @@ pn_select_method = ["cluster_head", "no_of_visit", "prediction"]; % cluster_head
 % Possible values: cluster_head, no_of_visit, prediction
 
 if ismember("prediction", pn_select_method)
-    generate_new_model = false; % boolean to decide the generation of new predictive model for the mobile sinks
+    generate_new_model = true; % boolean to decide the generation of new predictive model for the mobile sinks
     train_data = 1; % Number of training rounds where data is to be gathered
-    past_data_considered = 10; % Number of past data ussed in prediction
+    past_data_considered = 20; % Number of past data ussed in prediction
 else
     past_data_considered = NaN;
 end
